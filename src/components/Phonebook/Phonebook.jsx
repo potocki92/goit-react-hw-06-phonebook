@@ -1,27 +1,17 @@
+import { useDispatch, useSelector } from 'react-redux';
 import ContactForm from 'components/ContactForm/ContactForm';
 import ContactList from 'components/ContactList/ContactList';
 import Filter from 'components/Filter/Filter';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import styles from './Phonebook.module.css';
+import { addContact, deleteContact } from 'redux/contactSlice';
+import { setFilter } from 'redux/filterSlice';
 
 const Phonebook = () => {
-  const [contacts, setContacts] = useState([]);
-  const [filter, setFilter] = useState('');
-
-  useEffect(() => {
-    const storedContacts = localStorage.getItem('contacts');
-
-    if (storedContacts) {
-      setContacts(JSON.parse(storedContacts));
-    }
-  }, []);
-
-  useEffect(() => {
-    if (contacts.length > 0) {
-      localStorage.setItem('contacts', JSON.stringify(contacts));
-    }
-  }, [contacts]);
+  const contacts = useSelector(state => state.contacts);
+  const filter = useSelector(state => state.filter);
+  const dispatch = useDispatch();
 
   const handleAddContact = newContact => {
     const isDuplicateName = contacts.some(
@@ -33,17 +23,15 @@ const Phonebook = () => {
       return;
     }
 
-    setContacts(prevContacts => [...prevContacts, newContact]);
+    dispatch(addContact(newContact));
   };
 
   const handleDeleteContact = contactId => {
-    setContacts(prevContacts =>
-      prevContacts.filter(contact => contact.id !== contactId)
-    );
+    dispatch(deleteContact(contactId));
   };
 
   const handleChangeFilter = e => {
-    setFilter(e.target.value);
+    dispatch(setFilter(e.target.value));
   };
 
   const getFilteredContacts = () => {
